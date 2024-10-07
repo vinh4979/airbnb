@@ -4,24 +4,22 @@ import { Login } from './auth.type';
 import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from 'src/user/user.types';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerOptions } from 'src/multer-config';
-
-
+import { multerOptions } from 'src/util/multer-config';
 @ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
+
   constructor(private readonly authService: AuthService) {}
 
   // signup
-@Post('signup')
-@UseInterceptors(FileInterceptor('avatar', multerOptions))
-@ApiConsumes('multipart/form-data')
-@ApiBody({type: User})
-async signup(@Body() body: User, @UploadedFile() file: Express.Multer.File) {
-  return this.authService.signup(body, file);
-}
-
-
+  @Post('signup')
+  @ApiOperation({ summary: 'User register' })
+  @UseInterceptors(FileInterceptor('avatar', multerOptions))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({type: User})
+  async signup(@Body() body: User, @UploadedFile() file: Express.Multer.File) {
+    return this.authService.signup(body, file);
+  }
 
   // login
   @Post('login')
@@ -34,8 +32,10 @@ async signup(@Body() body: User, @UploadedFile() file: Express.Multer.File) {
       access_token: { type: 'string', example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' }
     }
   }})
-  async login(@Body() body: Login): Promise<{ message: string; access_token: string } | null> {
-    return this.authService.login(body);
-  }
+  async login(@Body() body: Login): Promise<any | null> {
+    const result = await this.authService.login(body);
+    console.log('Login result:', JSON.stringify(result, null, 2));
+    return result;
+  }  
 }
 

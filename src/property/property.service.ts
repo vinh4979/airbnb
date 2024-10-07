@@ -1,7 +1,7 @@
 import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'prisma/prisma.service';
 import { Location, PropertyLocationWithoutLocationId, PropertyStatus, PropertyWithExtras, UploadImage } from './property.type';
-import { CloudinaryService } from 'src/cloudinary.service';
+import { CloudinaryService } from 'src/config/cloundinary/cloudinary.service';
 import { Prisma } from '@prisma/client';
 
 type PropertySearchResult = {

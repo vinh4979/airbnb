@@ -1,17 +1,20 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Login } from './auth.type';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import { Gender, Role, User } from 'src/user/user.types';
 import * as bcrypt from 'bcrypt';
-import { CloudinaryService } from 'src/cloudinary.service';
+import { CloudinaryService } from 'src/config/cloundinary/cloudinary.service';
+import { ConfigService } from 'src/config/config.service';
 
 @Injectable()
 export class AuthService {
-    constructor(
+  constructor(
         private prisma: PrismaService, 
         private jwtService: JwtService, 
-        private cloudinaryService: CloudinaryService) {}
+        private cloudinaryService: CloudinaryService,
+        private configService : ConfigService
+      ) {}
 
 
         async signup(body: User, file: Express.Multer.File) {
@@ -69,34 +72,31 @@ export class AuthService {
           async login(body: Login) {
             const { email, password } = body;
             const user = await this.prisma.user.findUnique({
-                where: {
-                    email: email
-                }
+                where: { email: email }
             });
-        
+
             if (!user) {
                 throw new BadRequestException('Email is incorrect');
             }
-        
+
             const isPasswordValid = await bcrypt.compare(password, user.password);
             if (!isPasswordValid) {
                 throw new BadRequestException('Password is incorrect');
             }
-        
-            const token = await this.jwtService.signAsync(
-                { userId: user.user_id },
-                { secret: 'SECRET_KEY', expiresIn: '1h', algorithm: 'HS256' }
-            );
-        
+
+            console.log('User ID:', user.user_id);
+            const payload = { sub: user.user_id, email: user.email };
+            const token = await this.jwtService.signAsync(payload, {
+                secret: this.configService.get('JWT_SECRET'),
+                expiresIn: '1h'
+            });
+            console.log('Generated token payload:', payload);
+            console.log('Generated token:', token);
+
             return {
-                message: 'Login successfully',
-                access_token: token
+              message: 'Login successfully',
+              access_token: token
             };
-          }
        
     }
-        
-
-
-
-
+  }

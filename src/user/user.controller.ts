@@ -1,19 +1,20 @@
-import { Controller, Get, Param, Query, NotFoundException, UseGuards, Put, UseInterceptors, Body, UploadedFile, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Param, Query, NotFoundException, UseGuards, Put, UseInterceptors, Body, UploadedFile, ParseIntPipe, ForbiddenException, Request } from '@nestjs/common';
 import { UserService } from './user.service';
 import { Gender, Role, UpdateUserDto, User } from './user.types';
 import { ApiOperation, ApiResponse, ApiTags, ApiQuery, ApiBearerAuth, ApiConsumes, ApiBody } from '@nestjs/swagger';
-import { AuthGuard } from '@nestjs/passport';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { multerOptions } from 'src/multer-config';
+import { multerOptions } from 'src/util/multer-config';
+import { JwtAuthGuard } from 'src/auth/ jwt-auth.guard.ts';
 
 @ApiTags('Users')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @ApiBearerAuth()
-  @UseGuards(AuthGuard('jwt'))
-  @Get()
+ 
+  @Get("get-all-user")
   @ApiOperation({ summary: 'Get list of users' })
   @ApiResponse({ status: 200, description: 'Get list of users successfully' })
   async getAllUsers(): Promise<User[]> {
@@ -51,7 +52,7 @@ export class UserController {
     }));
   } 
 
-  @Get(':id')
+  @Get('get-user-by-id/:id')
   @ApiOperation({ summary: 'Get user information by id' })
   @ApiResponse({ status: 200, description: 'Get user information successfully' })
   @ApiResponse({ status: 404, description: 'User not found' })
@@ -67,16 +68,22 @@ export class UserController {
     };
   }
 
-@Put(':id')
+@Put('edit-user/:id')
 @UseInterceptors(FileInterceptor('avatar', multerOptions))
 @ApiConsumes('multipart/form-data')
-@ApiOperation({ summary: 'Cập nhật thông tin người dùng' })
-@ApiResponse({ status: 200, description: 'Thông tin người dùng đã được cập nhật thành công' })
+@ApiOperation({ summary: 'Update user information' })
+@ApiResponse({ status: 200, description: 'User information has been updated successfully' })
+@ApiResponse({ status: 403, description: 'You do not have permission to update this user\'s information' })
 async updateUser(
   @Param('id', ParseIntPipe) id: number,
   @Body() updateUserDto: UpdateUserDto,
-  @UploadedFile() file: Express.Multer.File
+  @UploadedFile() file: Express.Multer.File,
+  @Request() req : any
 ) {
+  console.log(req)
+  if (req.user.user_id !== id) {
+    throw new ForbiddenException('You do not have permission to update information of other users');
+  }
   return this.userService.updateUser(id, updateUserDto, file);
 }
 

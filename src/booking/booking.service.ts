@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'prisma/prisma.service';
 import { Booking, Booking_payment, Booking_status } from './booking.type';
 import { Prisma } from '@prisma/client';
 import { Bookings_status } from '@prisma/client';

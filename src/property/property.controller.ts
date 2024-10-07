@@ -1,24 +1,24 @@
-import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, UploadedFiles, UseGuards, UseInterceptors, Query, Put, Delete, UploadedFile } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, UploadedFiles, UseInterceptors, Query, Put, Delete, UploadedFile, UseGuards } from '@nestjs/common';
 import { PropertyService } from './property.service';
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags, ApiQuery } from '@nestjs/swagger';
-import { ImageDescriptionDto, Location, Property, PropertyLocationWithoutLocationId, PropertyWithLocation, UpdatePropertyStatusDto, UploadImageDto } from './property.type';
-import { CloudinaryService } from 'src/cloudinary.service';
+import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
+import { Location, PropertyLocationWithoutLocationId, UpdatePropertyStatusDto } from './property.type';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { multerOptions } from 'src/multer-config';
 import { ParseArrayPipe } from '@nestjs/common';
+import { CloudinaryService } from 'src/config/cloundinary/cloudinary.service';
+import { multerOptions } from 'src/util/multer-config';
+import { JwtAuthGuard } from 'src/auth/ jwt-auth.guard.ts';
+import { PropertyStatus } from './property.type';
 
 @ApiTags('Property')
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('property')
 export class PropertyController {
   constructor(private readonly propertyService: PropertyService,
     private readonly cloudinaryService: CloudinaryService
    ) {}
-
-    
-
-
   // get all property   
-  @Get()
+  @Get("get-all-property")
   @ApiOperation({ summary: 'Get all properties' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved all properties.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
@@ -26,48 +26,48 @@ export class PropertyController {
     return this.propertyService.getAllProperties();
   }
    // search property by amenities
-   @Get('amenities')
-@ApiOperation({ summary: 'Tìm phòng theo tiện nghi' })
-@ApiQuery({ name: 'amenities', type: [String], isArray: true, description: 'Danh sách các tiện nghi cần tìm' })
-@ApiResponse({ status: 200, description: 'Danh sách các phòng có tiện nghi phù hợp.' })
-@ApiResponse({ status: 400, description: 'Yêu cầu không hợp lệ.' })
-async getPropertiesByAmenities(@Query('amenities', new ParseArrayPipe({ items: String, separator: ',' })) amenities: string[]) {
-  if (!amenities || amenities.length === 0) {
-    throw new BadRequestException('Cần cung cấp ít nhất một tiện nghi');
+  @Get('search-property-by-amenity')
+  @ApiOperation({ summary: 'Search for properties by amenities' })
+  @ApiQuery({ name: 'amenities', type: [String], isArray: true, description: 'List of amenities to search for' })
+  @ApiResponse({ status: 200, description: 'List of properties with matching amenities.' })
+  @ApiResponse({ status: 400, description: 'Invalid request.' })
+  async getPropertiesByAmenities(@Query('amenities', new ParseArrayPipe({ items: String, separator: ',' })) amenities: string[]) {
+    if (!amenities || amenities.length === 0) {
+      throw new BadRequestException('At least one amenity must be provided');
+    }
+    console.log("Amenities: ", amenities);
+    return this.propertyService.getPropertiesByAmenities(amenities);
   }
-  console.log("Amenities: ", amenities);
-  return this.propertyService.getPropertiesByAmenities(amenities);
-}
 
-  // search property by location @Get('search')
-  @Get('search')
-  @ApiOperation({ summary: 'Tìm kiếm phòng theo vị trí' })
-  @ApiQuery({ name: 'location', description: 'Từ khóa tìm kiếm vị trí' })
-  @ApiResponse({ status: 200, description: 'Danh sách các phòng phù hợp với vị trí tìm kiếm.' })
+  // search property by location 
+  @Get('search-property-by-location')
+  @ApiOperation({ summary: 'Search for properties by location' })
+  @ApiQuery({ name: 'location', description: 'Location search keyword' })
+  @ApiResponse({ status: 200, description: 'List of properties matching the search location.' })
   async searchPropertiesByLocation(@Query('location') location: string) {
     return this.propertyService.searchPropertiesByLocation(location);
   }
 
     // get property by id 
-    @Get(':id')
-    @ApiOperation({ summary: 'Lấy thông tin chi tiết của một phòng theo ID' })
-    @ApiParam({ name: 'id', type: 'number', description: 'ID của phòng' })
-    @ApiResponse({ status: 200, description: 'Thông tin chi tiết của phòng.' })
-    @ApiResponse({ status: 404, description: 'Không tìm thấy phòng với ID đã cho.' })
+    @Get('get-porperty-by-id/:id')
+    @ApiOperation({ summary: 'Get detailed information of a property by ID' })
+    @ApiParam({ name: 'id', type: 'number', description: 'Property ID' })
+    @ApiResponse({ status: 200, description: 'Detailed information of the property.' })
+    @ApiResponse({ status: 404, description: 'Property not found with the given ID.' })
     async getPropertyById(@Param('id', ParseIntPipe) id: number) {
       return this.propertyService.getPropertyById(id);
     }
 
   // get properties by type
-  @Get('type/:type')
-  @ApiOperation({ summary: 'Lấy danh sách phòng theo loại' })
-  @ApiParam({ name: 'type', enum: ['apartment', 'house', 'villa', 'condo', 'other'], description: 'Loại phòng' })
-  @ApiResponse({ status: 200, description: 'Danh sách các phòng theo loại.' })
-  @ApiResponse({ status: 400, description: 'Loại phòng không hợp lệ.' })
+  @Get('get-porperty-by-type/:type')
+  @ApiOperation({ summary: 'Get list of properties by type' })
+  @ApiParam({ name: 'type', enum: ['apartment', 'house', 'villa', 'condo', 'other'], description: 'Property type' })
+  @ApiResponse({ status: 200, description: 'List of properties by type.' })
+  @ApiResponse({ status: 400, description: 'Invalid property type.' })
   async getPropertiesByType(@Param('type') type: string) {
     const validTypes = ['apartment', 'house', 'villa', 'condo', 'other'];
     if (!validTypes.includes(type)) {
-      throw new BadRequestException('Loại phòng không hợp lệ');
+      throw new BadRequestException('Invalid property type');
     }
     return this.propertyService.getPropertiesByType(type);
   }
@@ -75,9 +75,7 @@ async getPropertiesByAmenities(@Query('amenities', new ParseArrayPipe({ items: S
 
  
   //create property 
-  @Post()
-  // @UseGuards(JwtAuthGuard)
-  // @ApiBearerAuth()
+  @Post("create-new-property")
   @ApiOperation({ summary: 'Create a new property' })
   @ApiResponse({ status: 201, description: 'The property has been successfully created.' })
   @ApiResponse({ status: 401, description: 'Unauthorized.' })
@@ -85,10 +83,21 @@ async getPropertiesByAmenities(@Query('amenities', new ParseArrayPipe({ items: S
     return this.propertyService.createProperty(body);
   }
 // update property status
-  @Put(':id/status')
+  @Put('update-property-status/:id')
   @ApiOperation({ summary: 'Cập nhật trạng thái của một property' })
   @ApiParam({ name: 'id', type: 'number', description: 'ID của property' })
-  @ApiBody({ type: UpdatePropertyStatusDto })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        status: {
+          type: 'string',
+          enum: Object.values(PropertyStatus),
+          description: 'Trạng thái mới của property'
+        }
+      }
+    }
+  })
   @ApiResponse({ status: 200, description: 'Trạng thái đã được cập nhật thành công.' })
   @ApiResponse({ status: 404, description: 'Không tìm thấy property với ID đã cho.' })
   async updatePropertyStatus(
@@ -127,8 +136,8 @@ async getPropertiesByAmenities(@Query('amenities', new ParseArrayPipe({ items: S
       },
     },
   })
-  @ApiOperation({ summary: 'Upload nhiều ảnh với mô tả' })
-  @ApiResponse({ status: 201, description: 'Các ảnh đã được tải lên thành công.' })
+  @ApiOperation({ summary: 'Upload multiple images with descriptions' })
+  @ApiResponse({ status: 201, description: 'Images uploaded successfully.' })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   async uploadImages(
     @UploadedFiles() files: Express.Multer.File[],
@@ -166,23 +175,23 @@ async getPropertiesByAmenities(@Query('amenities', new ParseArrayPipe({ items: S
       });
     }
 
-    console.log("Số lượng ảnh: ", files.length);
-    console.log("Số lượng mô tả: ", descriptions.length);
-    console.log("Mô tả: ", descriptions);
+    console.log("Number of images: ", files.length);
+    console.log("Number of descriptions: ", descriptions.length);
+    console.log("Descriptions: ", descriptions);
 
     if (files.length !== descriptions.length) {
-      throw new Error('Số lượng ảnh và mô tả không khớp');
+      throw new Error('Number of images and descriptions do not match');
     }
     return this.propertyService.uploadImages(files, descriptions.map(d => d.description));
   }
 
   // edit location by property id 
-@Put(':id/location')
-@ApiOperation({ summary: 'Cập nhật thông tin địa điểm của một property' })
-@ApiParam({ name: 'id', type: 'number', description: 'ID của property' })
+@Put('update-location/:id')
+@ApiOperation({ summary: 'Update the location information of a property' })
+@ApiParam({ name: 'id', type: 'number', description: 'ID of the property' })
 @ApiBody({ type: Location })
-@ApiResponse({ status: 200, description: 'Thông tin địa điểm đã được cập nhật.' })
-@ApiResponse({ status: 404, description: 'Không tìm thấy property với ID đã cho.' })
+@ApiResponse({ status: 200, description: 'Location information updated.' })
+@ApiResponse({ status: 404, description: 'Property not found with the given ID.' })
 async updatePropertyLocation(
   @Param('id', ParseIntPipe) id: number,
   @Body() updateLocation: Location
@@ -191,9 +200,9 @@ async updatePropertyLocation(
 }
 
 // update property policies
-@Put(':id/policies')
-@ApiOperation({ summary: 'Cập nhật chính sách cho một property' })
-@ApiParam({ name: 'id', type: 'number', description: 'ID của property' })
+@Put('update-policy/:id')
+@ApiOperation({ summary: 'Update policies for a property' })
+@ApiParam({ name: 'id', type: 'number', description: 'ID of the property' })
 @ApiBody({
   schema: {
     type: 'object',
@@ -212,8 +221,8 @@ async updatePropertyLocation(
     }
   }
 })
-@ApiResponse({ status: 200, description: 'Chính sách đã được cập nhật thành công' })
-@ApiResponse({ status: 404, description: 'Không tìm thấy property' })
+@ApiResponse({ status: 200, description: 'Policies updated successfully' })
+@ApiResponse({ status: 404, description: 'Property not found' })
 async updatePropertyPolicies(
   @Param('id', ParseIntPipe) propertyId: number,
   @Body('policies') policies: Array<{ name: string; description?: string; valid_until?: string }>
@@ -223,11 +232,11 @@ async updatePropertyPolicies(
 
 // delete property policies
 @Delete(':id/policies/:policyId')
-@ApiOperation({ summary: 'Xóa một chính sách cụ thể khỏi property và bảng Policies' })
-@ApiParam({ name: 'id', type: 'number', description: 'ID của property' })
-@ApiParam({ name: 'policyId', type: 'number', description: 'ID của chính sách cần xóa' })
-@ApiResponse({ status: 200, description: 'Chính sách đã được xóa thành công' })
-@ApiResponse({ status: 404, description: 'Không tìm thấy property hoặc chính sách' })
+@ApiOperation({ summary: 'Delete a specific policy from a property and the Policies table' })
+@ApiParam({ name: 'id', type: 'number', description: 'ID of the property' })
+@ApiParam({ name: 'policyId', type: 'number', description: 'ID of the policy to delete' })
+@ApiResponse({ status: 200, description: 'Policy deleted successfully' })
+@ApiResponse({ status: 404, description: 'Property or policy not found' })
 async removePropertyPolicy(
   @Param('id', ParseIntPipe) propertyId: number,
   @Param('policyId', ParseIntPipe) policyId: number
@@ -236,9 +245,9 @@ async removePropertyPolicy(
 }
 
 // update property amenities
-@Put(':id/amenities')
-@ApiOperation({ summary: 'Cập nhật tiện nghi cho một property' })
-@ApiParam({ name: 'id', type: 'number', description: 'ID của property' })
+@Put('update-amenity/:id')
+@ApiOperation({ summary: 'Update amenities for a property' })
+@ApiParam({ name: 'id', type: 'number', description: 'ID of the property' })
 @ApiBody({
   schema: {
     type: 'object',
@@ -246,13 +255,13 @@ async removePropertyPolicy(
       amenities: {
         type: 'array',
         items: { type: 'string' },
-        description: 'Danh sách tên các tiện nghi',
+        description: 'List of amenity names',
       },
     },
   },
 })
-@ApiResponse({ status: 200, description: 'Tiện nghi đã được cập nhật thành công' })
-@ApiResponse({ status: 404, description: 'Không tìm thấy property' })
+@ApiResponse({ status: 200, description: 'Amenities updated successfully' })
+@ApiResponse({ status: 404, description: 'Property not found' })
 async updatePropertyAmenities(
   @Param('id', ParseIntPipe) propertyId: number,
   @Body('amenities', new ParseArrayPipe({ items: String, separator: ',' })) amenities: string[]
@@ -262,11 +271,11 @@ async updatePropertyAmenities(
 
 // delete property amenities
 @Delete(':id/amenities/:amenityId')
-@ApiOperation({ summary: 'Xóa một tiện nghi cụ thể khỏi property' })
-@ApiParam({ name: 'id', type: 'number', description: 'ID của property' })
-@ApiParam({ name: 'amenityId', type: 'number', description: 'ID của tiện nghi cần xóa' })
-@ApiResponse({ status: 200, description: 'Tiện nghi đã được xóa thành công' })
-@ApiResponse({ status: 404, description: 'Không tìm thấy property hoặc tiện nghi' })
+@ApiOperation({ summary: 'Delete a specific amenity from a property' })
+@ApiParam({ name: 'id', type: 'number', description: 'ID of the property' })
+@ApiParam({ name: 'amenityId', type: 'number', description: 'ID of the amenity to delete' })
+@ApiResponse({ status: 200, description: 'Amenity deleted successfully' })
+@ApiResponse({ status: 404, description: 'Property or amenity not found' })
 async removePropertyAmenity(
   @Param('id', ParseIntPipe) propertyId: number,
   @Param('amenityId', ParseIntPipe) amenityId: number
@@ -316,41 +325,12 @@ async removePropertyAmenity(
         return this.propertyService.updatePropertyImages(id, files, parsedImageDetails);
     }
 
-    // update property image by id 
-//     @Put(':propertyId/images/:imageId')
-// @ApiOperation({ summary: 'Cập nhật thông tin của một ảnh cụ thể của một property' })
-// @ApiParam({ name: 'propertyId', type: 'number' })
-// @ApiParam({ name: 'imageId', type: 'number' })
-// @ApiBody({
-//   schema: {
-//     type: 'object',
-//     properties: {
-//       image_type: {
-//         type: 'string',
-//         enum: ['living_room', 'bedroom', 'kitchen', 'bathroom', 'exterior', 'view', 'dining_area', 'other'],
-//       },
-//       is_primary: { type: 'boolean' },
-//       caption: { type: 'string' },
-//     },
-//   },
-// })
-// async updatePropertyImagedemo(
-//   @Param('propertyId', ParseIntPipe) propertyId: number,
-//   @Param('imageId', ParseIntPipe) imageId: number,
-//   @Body() updateData: {
-//     image_type?: 'living_room' | 'bedroom' | 'kitchen' | 'bathroom' | 'exterior' | 'view' | 'dining_area' | 'other';
-//     is_primary?: boolean;
-//     caption?: string;
-//   }
-// ) {
-//   return this.propertyService.updatePropertyImage(propertyId, imageId, updateData);
-// }
-
+    
 // update and delete property image 
 @Put(':propertyId/images/:imageId')
 @UseInterceptors(FileInterceptor('image', multerOptions))
 @ApiConsumes('multipart/form-data')
-@ApiOperation({ summary: 'Cập nhật thông tin của một ảnh cụ thể của một property' })
+@ApiOperation({ summary: 'Update information of a specific image of a property' })
 @ApiParam({ name: 'propertyId', type: 'number' })
 @ApiParam({ name: 'imageId', type: 'number' })
 @ApiBody({
@@ -385,11 +365,11 @@ async updatePropertyImage(
 }
 
 @Delete(':propertyId/images/:imageId')
-@ApiOperation({ summary: 'Xóa một ảnh cụ thể của một property' })
+@ApiOperation({ summary: 'Delete a specific image of a property' })
 @ApiParam({ name: 'propertyId', type: 'number' })
 @ApiParam({ name: 'imageId', type: 'number' })
-@ApiResponse({ status: 200, description: 'Ảnh đã được xóa thành công' })
-@ApiResponse({ status: 404, description: 'Không tìm thấy property hoặc ảnh' })
+@ApiResponse({ status: 200, description: 'Image deleted successfully' })
+@ApiResponse({ status: 404, description: 'Property or image not found' })
 async deletePropertyImage(
   @Param('propertyId', ParseIntPipe) propertyId: number,
   @Param('imageId', ParseIntPipe) imageId: number
@@ -403,8 +383,8 @@ async deletePropertyImage(
   @UseInterceptors(FilesInterceptor('images', 10, multerOptions))
   @ApiConsumes('multipart/form-data')
   @ApiParam({ name: 'id', type: 'number' })
-  @ApiOperation({ summary: 'Thêm nhiều ảnh cho một property' })
-  @ApiResponse({ status: 201, description: 'Các ảnh đã được thêm thành công.' })
+  @ApiOperation({ summary: 'Add multiple images to a property' })
+  @ApiResponse({ status: 201, description: 'Images added successfully.' })
   @ApiResponse({ status: 400, description: 'Bad Request.' })
   @ApiBody({
     schema: {
@@ -447,7 +427,7 @@ async deletePropertyImage(
     try {
       parsedImageDetails = JSON.parse(imageDetails);
       if (!Array.isArray(parsedImageDetails)) {
-        throw new BadRequestException('imageDetails phải là một mảng');
+        throw new BadRequestException('imageDetails must be an array');
       }
     } catch (error) {
       console.error('Error parsing imageDetails:', error);
@@ -455,12 +435,12 @@ async deletePropertyImage(
       throw new BadRequestException('Invalid imageDetails format');
     }
 
-    console.log("Số lượng ảnh: ", files.length);
-    console.log("Số lượng thông tin chi tiết: ", parsedImageDetails.length);
-    console.log("Chi tiết ảnh: ", parsedImageDetails);
+    console.log("Number of images: ", files.length);
+    console.log("Number of details: ", parsedImageDetails.length);
+    console.log("Image details: ", parsedImageDetails);
 
     if (files.length !== parsedImageDetails.length) {
-      throw new BadRequestException('Số lượng ảnh và thông tin chi tiết không khớp');
+      throw new BadRequestException('Number of images and details do not match');
     }
 
     return this.propertyService.addPropertyImages(id, files, parsedImageDetails);

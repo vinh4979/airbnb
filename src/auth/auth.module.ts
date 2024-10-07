@@ -1,18 +1,17 @@
 import { forwardRef, Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { JwtModule } from '@nestjs/jwt';
-import { PrismaModule } from 'src/prisma.module';
-import { CloudinaryService } from 'src/cloudinary.service';
 import { ConfigModule } from 'src/config/config.module';
 import { MulterModule } from '@nestjs/platform-express';
+import { PrismaModule } from 'prisma/prisma.module';
+import { JwtConfigModule } from 'src/config/jwt/jwt.module';
 
 
 @Module({
-  imports: [JwtModule.register({}), PrismaModule,ConfigModule, MulterModule.register({
+  imports: [JwtConfigModule,ConfigModule, MulterModule.register({
     dest: './uploads',
   })],
   controllers: [AuthController],
-  providers: [AuthService, CloudinaryService],
+  providers: [AuthService],
 })
 export class AuthModule {}
