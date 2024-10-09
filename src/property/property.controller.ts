@@ -1,13 +1,12 @@
 import { BadRequestException, Body, Controller, Get, Param, ParseIntPipe, Post, UploadedFiles, UseInterceptors, Query, Put, Delete, UploadedFile, UseGuards } from '@nestjs/common';
 import { PropertyService } from './property.service';
 import { ApiBody, ApiConsumes, ApiOperation, ApiParam, ApiResponse, ApiTags, ApiQuery, ApiBearerAuth } from '@nestjs/swagger';
-import { Location, PropertyLocationWithoutLocationId, UpdatePropertyStatusDto } from './property.type';
+import { Location, PropertyLocationWithoutLocationId, UpdatePropertyStatusDto, PropertyStatus  } from './property.type';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ParseArrayPipe } from '@nestjs/common';
 import { CloudinaryService } from 'src/config/cloundinary/cloudinary.service';
 import { multerOptions } from 'src/util/multer-config';
 import { JwtAuthGuard } from 'src/auth/ jwt-auth.guard.ts';
-import { PropertyStatus } from './property.type';
 
 @ApiTags('Property')
 @ApiBearerAuth()
@@ -83,107 +82,107 @@ export class PropertyController {
     return this.propertyService.createProperty(body);
   }
 // update property status
-  @Put('update-property-status/:id')
-  @ApiOperation({ summary: 'Cập nhật trạng thái của một property' })
-  @ApiParam({ name: 'id', type: 'number', description: 'ID của property' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        status: {
-          type: 'string',
-          enum: Object.values(PropertyStatus),
-          description: 'Trạng thái mới của property'
-        }
+@Put('update-property-status/:id')
+@ApiOperation({ summary: 'Update the status of a property' })
+@ApiParam({ name: 'id', type: 'number', description: 'ID of the property' })
+@ApiBody({
+  schema: {
+    type: 'object',
+    properties: {
+      status: {
+        type: 'string',
+        enum: Object.values(PropertyStatus),
+        description: 'New status of the property'
       }
     }
-  })
-  @ApiResponse({ status: 200, description: 'Trạng thái đã được cập nhật thành công.' })
-  @ApiResponse({ status: 404, description: 'Không tìm thấy property với ID đã cho.' })
-  async updatePropertyStatus(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateStatusDto: UpdatePropertyStatusDto
-  ) {
-    return this.propertyService.updatePropertyStatus(id, updateStatusDto.status);
   }
+})
+@ApiResponse({ status: 200, description: 'Status updated successfully.' })
+@ApiResponse({ status: 404, description: 'Property not found with the given ID.' })
+async updatePropertyStatus(
+  @Param('id', ParseIntPipe) id: number,
+  @Body() updateStatusDto: UpdatePropertyStatusDto
+) {
+  return this.propertyService.updatePropertyStatus(id, updateStatusDto.status);
+}
 
 
 
   // test upload image 
-  @Post('upload-images')
-  @UseInterceptors(FilesInterceptor('images', 10, multerOptions)) // Cho phép tối đa 10 ảnh
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        images: {
-          type: 'array',
-          items: {
-            type: 'string',
-            format: 'binary',
-          },
-        },
-        descriptions: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              description: { type: 'string' },
-            },
-          },
-        },
-      },
-    },
-  })
-  @ApiOperation({ summary: 'Upload multiple images with descriptions' })
-  @ApiResponse({ status: 201, description: 'Images uploaded successfully.' })
-  @ApiResponse({ status: 400, description: 'Bad Request.' })
-  async uploadImages(
-    @UploadedFiles() files: Express.Multer.File[],
-    @Body() body: { descriptions: string | string[] }
-  ): Promise<any> {
-    let descriptions: { description: string }[] = [];
-    console.log("body test: ", body);
+  // @Post('upload-images')
+  // @UseInterceptors(FilesInterceptor('images', 10, multerOptions)) // Cho phép tối đa 10 ảnh
+  // @ApiConsumes('multipart/form-data')
+  // @ApiBody({
+  //   schema: {
+  //     type: 'object',
+  //     properties: {
+  //       images: {
+  //         type: 'array',
+  //         items: {
+  //           type: 'string',
+  //           format: 'binary',
+  //         },
+  //       },
+  //       descriptions: {
+  //         type: 'array',
+  //         items: {
+  //           type: 'object',
+  //           properties: {
+  //             description: { type: 'string' },
+  //           },
+  //         },
+  //       },
+  //     },
+  //   },
+  // })
+  // @ApiOperation({ summary: 'Upload multiple images with descriptions' })
+  // @ApiResponse({ status: 201, description: 'Images uploaded successfully.' })
+  // @ApiResponse({ status: 400, description: 'Bad Request.' })
+  // async uploadImages(
+  //   @UploadedFiles() files: Express.Multer.File[],
+  //   @Body() body: { descriptions: string | string[] }
+  // ): Promise<any> {
+  //   let descriptions: { description: string }[] = [];
+  //   console.log("body test: ", body);
     
-    if (typeof body.descriptions === 'string') {
-      try {
-        const parsedDescriptions = JSON.parse(body.descriptions);
-        if (Array.isArray(parsedDescriptions)) {
-          descriptions = parsedDescriptions.map(item => {
-            if (typeof item === 'string') {
-              return JSON.parse(item);
-            }
-            return item;
-          });
-        } else {
-          descriptions = [parsedDescriptions];
-        }
-      } catch (error) {
-        descriptions = [{ description: body.descriptions }];
-      }
-    } else if (Array.isArray(body.descriptions)) {
-      descriptions = body.descriptions.map(item => {
-        if (typeof item === 'string') {
-          try {
-            return JSON.parse(item);
-          } catch {
-            return { description: item };
-          }
-        }
-        return item;
-      });
-    }
+  //   if (typeof body.descriptions === 'string') {
+  //     try {
+  //       const parsedDescriptions = JSON.parse(body.descriptions);
+  //       if (Array.isArray(parsedDescriptions)) {
+  //         descriptions = parsedDescriptions.map(item => {
+  //           if (typeof item === 'string') {
+  //             return JSON.parse(item);
+  //           }
+  //           return item;
+  //         });
+  //       } else {
+  //         descriptions = [parsedDescriptions];
+  //       }
+  //     } catch (error) {
+  //       descriptions = [{ description: body.descriptions }];
+  //     }
+  //   } else if (Array.isArray(body.descriptions)) {
+  //     descriptions = body.descriptions.map(item => {
+  //       if (typeof item === 'string') {
+  //         try {
+  //           return JSON.parse(item);
+  //         } catch {
+  //           return { description: item };
+  //         }
+  //       }
+  //       return item;
+  //     });
+  //   }
 
-    console.log("Number of images: ", files.length);
-    console.log("Number of descriptions: ", descriptions.length);
-    console.log("Descriptions: ", descriptions);
+  //   console.log("Number of images: ", files.length);
+  //   console.log("Number of descriptions: ", descriptions.length);
+  //   console.log("Descriptions: ", descriptions);
 
-    if (files.length !== descriptions.length) {
-      throw new Error('Number of images and descriptions do not match');
-    }
-    return this.propertyService.uploadImages(files, descriptions.map(d => d.description));
-  }
+  //   if (files.length !== descriptions.length) {
+  //     throw new Error('Number of images and descriptions do not match');
+  //   }
+  //   return this.propertyService.uploadImages(files, descriptions.map(d => d.description));
+  // }
 
   // edit location by property id 
 @Put('update-location/:id')
@@ -325,44 +324,6 @@ async removePropertyAmenity(
         return this.propertyService.updatePropertyImages(id, files, parsedImageDetails);
     }
 
-    
-// update and delete property image 
-@Put(':propertyId/images/:imageId')
-@UseInterceptors(FileInterceptor('image', multerOptions))
-@ApiConsumes('multipart/form-data')
-@ApiOperation({ summary: 'Update information of a specific image of a property' })
-@ApiParam({ name: 'propertyId', type: 'number' })
-@ApiParam({ name: 'imageId', type: 'number' })
-@ApiBody({
-  schema: {
-    type: 'object',
-    properties: {
-      image_type: {
-        type: 'string',
-        enum: ['living_room', 'bedroom', 'kitchen', 'bathroom', 'exterior', 'view', 'dining_area', 'other'],
-      },
-      is_primary: { type: 'boolean' },
-      caption: { type: 'string' },
-      image: {
-        type: 'string',
-        format: 'binary',
-      },
-    },
-  },
-})
-async updatePropertyImage(
-  @Param('propertyId', ParseIntPipe) propertyId: number,
-  @Param('imageId', ParseIntPipe) imageId: number,
-  @Body() updateData: {
-    image_type?: 'living_room' | 'bedroom' | 'kitchen' | 'bathroom' | 'exterior' | 'view' | 'dining_area' | 'other';
-    is_primary?: boolean | string;
-    caption?: string;
-  },
-  @UploadedFile() file: Express.Multer.File
-) {
-  console.log('Received image:', file);
-  return this.propertyService.updatePropertyImage(propertyId, imageId, { ...updateData, file });
-}
 
 @Delete(':propertyId/images/:imageId')
 @ApiOperation({ summary: 'Delete a specific image of a property' })
@@ -445,11 +406,6 @@ async deletePropertyImage(
 
     return this.propertyService.addPropertyImages(id, files, parsedImageDetails);
   }
-
-
- 
-
-  
 
 }
 

@@ -1,0 +1,393 @@
+{
+    "info": {
+      "name": "AirBnb API",
+      "description": "API for AirBnb project",
+      "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+      {
+        "name": "Auth",
+        "item": [
+          {
+            "name": "Signup",
+            "request": {
+              "method": "POST",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/auth/signup",
+                "host": ["{{base_url}}"],
+                "path": ["auth", "signup"]
+              },
+              "body": {
+                "mode": "formdata",
+                "formdata": [
+                  {"key": "name", "type": "text", "value": ""},
+                  {"key": "email", "type": "text", "value": ""},
+                  {"key": "password", "type": "text", "value": ""},
+                  {"key": "phone", "type": "text", "value": ""},
+                  {"key": "birth_day", "type": "text", "value": ""},
+                  {"key": "gender", "type": "text", "value": ""},
+                  {"key": "avatar", "type": "file", "src": ""}
+                ]
+              }
+            }
+          },
+          {
+            "name": "Login",
+            "request": {
+              "method": "POST",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/auth/login",
+                "host": ["{{base_url}}"],
+                "path": ["auth", "login"]
+              },
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"email\": \"\",\n  \"password\": \"\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Users",
+        "item": [
+          {
+            "name": "Get All Users",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/users/get-all-user",
+                "host": ["{{base_url}}"],
+                "path": ["users", "get-all-user"]
+              }
+            }
+          },
+          {
+            "name": "Search Users by Name",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/users/search-user-by-name?name=",
+                "host": ["{{base_url}}"],
+                "path": ["users", "search-user-by-name"],
+                "query": [
+                  {
+                    "key": "name",
+                    "value": ""
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "Search Users by Email",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/users/search-user-by-email?email=",
+                "host": ["{{base_url}}"],
+                "path": ["users", "search-user-by-email"],
+                "query": [
+                  {
+                    "key": "email",
+                    "value": ""
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "Get User by ID",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/users/get-user-by-id/:id",
+                "host": ["{{base_url}}"],
+                "path": ["users", "get-user-by-id", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": ""
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "Update User",
+            "request": {
+              "method": "PUT",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/users/edit-user/:id",
+                "host": ["{{base_url}}"],
+                "path": ["users", "edit-user", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": ""
+                  }
+                ]
+              },
+              "body": {
+                "mode": "formdata",
+                "formdata": [
+                  {"key": "name", "type": "text", "value": ""},
+                  {"key": "phone", "type": "text", "value": ""},
+                  {"key": "birth_day", "type": "text", "value": ""},
+                  {"key": "gender", "type": "text", "value": ""},
+                  {"key": "role", "type": "text", "value": ""},
+                  {"key": "avatar", "type": "file", "src": ""}
+                ]
+              }
+            }
+          }
+        ]
+      },
+      {
+        "name": "Property",
+        "item": [
+          {
+            "name": "Get Properties by Type",
+            "request": {
+              "method": "GET",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/property/get-porperty-by-type/:type",
+                "host": ["{{base_url}}"],
+                "path": ["property", "get-porperty-by-type", ":type"],
+                "variable": [
+                  {
+                    "key": "type",
+                    "value": ""
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "Create New Property",
+            "request": {
+              "method": "POST",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/property/create-new-property",
+                "host": ["{{base_url}}"],
+                "path": ["property", "create-new-property"]
+              },
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  // Add property details here\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "name": "Update Property Status",
+            "request": {
+              "method": "PUT",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/property/update-property-status/:id",
+                "host": ["{{base_url}}"],
+                "path": ["property", "update-property-status", ":id"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": ""
+                  }
+                ]
+              },
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"status\": \"\"\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "name": "Update Property Amenities",
+            "request": {
+              "method": "PUT",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/property/:id/amenities",
+                "host": ["{{base_url}}"],
+                "path": ["property", ":id", "amenities"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": ""
+                  }
+                ]
+              },
+              "body": {
+                "mode": "raw",
+                "raw": "{\n  \"amenities\": []\n}",
+                "options": {
+                  "raw": {
+                    "language": "json"
+                  }
+                }
+              }
+            }
+          },
+          {
+            "name": "Delete Property Amenity",
+            "request": {
+              "method": "DELETE",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/property/:id/amenities/:amenityId",
+                "host": ["{{base_url}}"],
+                "path": ["property", ":id", "amenities", ":amenityId"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": ""
+                  },
+                  {
+                    "key": "amenityId",
+                    "value": ""
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "Update Property Images",
+            "request": {
+              "method": "POST",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/property/:id/update-images",
+                "host": ["{{base_url}}"],
+                "path": ["property", ":id", "update-images"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": ""
+                  }
+                ]
+              },
+              "body": {
+                "mode": "formdata",
+                "formdata": [
+                  {"key": "images", "type": "file", "src": ""},
+                  {"key": "imageDetails", "type": "text", "value": ""}
+                ]
+              }
+            }
+          },
+          {
+            "name": "Delete Property Image",
+            "request": {
+              "method": "DELETE",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/property/:propertyId/images/:imageId",
+                "host": ["{{base_url}}"],
+                "path": ["property", ":propertyId", "images", ":imageId"],
+                "variable": [
+                  {
+                    "key": "propertyId",
+                    "value": ""
+                  },
+                  {
+                    "key": "imageId",
+                    "value": ""
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "name": "Add Property Images",
+            "request": {
+              "method": "POST",
+              "header": [],
+              "url": {
+                "raw": "{{base_url}}/property/:id/add-images",
+                "host": ["{{base_url}}"],
+                "path": ["property", ":id", "add-images"],
+                "variable": [
+                  {
+                    "key": "id",
+                    "value": ""
+                  }
+                ]
+              },
+              "body": {
+                "mode": "formdata",
+                "formdata": [
+                  {"key": "images", "type": "file", "src": ""},
+                  {"key": "imageDetails", "type": "text", "value": ""}
+                ]
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "auth": {
+      "type": "bearer",
+      "bearer": [
+        {
+          "key": "token",
+          "value": "{{access_token}}",
+          "type": "string"
+        }
+      ]
+    },
+    "event": [
+      {
+        "listen": "prerequest",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            ""
+          ]
+        }
+      },
+      {
+        "listen": "test",
+        "script": {
+          "type": "text/javascript",
+          "exec": [
+            ""
+          ]
+        }
+      }
+    ],
+    "variable": [
+      {
+        "key": "base_url",
+        "value": "http://localhost:8080",
+        "type": "string"
+      },
+      {
+        "key": "access_token",
+        "value": "",
+        "type": "string"
+      }
+    ]
+  }

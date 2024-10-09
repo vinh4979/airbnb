@@ -14,17 +14,6 @@ model Amenities {
   Property_Amenities Property_Amenities[]
 }
 
-model AvailabilityCalendar {
-  id          Int                         @id @default(autoincrement())
-  property_id Int?
-  date        DateTime                    @db.Date
-  status      AvailabilityCalendar_status @default(available)
-  price       Decimal                     @db.Decimal(10, 2)
-  Properties  Properties?                 @relation(fields: [property_id], references: [property_id], onDelete: NoAction, onUpdate: NoAction, map: "AvailabilityCalendar_ibfk_1")
-
-  @@index([property_id], map: "property_id")
-}
-
 model Bookings {
   booking_id      Int                     @id @default(autoincrement())
   property_id     Int?
@@ -79,23 +68,6 @@ model Locations {
   Properties  Properties[]
 }
 
-model Messages {
-  message_id                      Int         @id @default(autoincrement())
-  sender_id                       Int?
-  receiver_id                     Int?
-  property_id                     Int?
-  content                         String      @db.Text
-  timestamp                       DateTime?   @default(now()) @db.Timestamp(0)
-  is_read                         Boolean?    @default(false)
-  User_Messages_sender_idToUser   User?       @relation("Messages_sender_idToUser", fields: [sender_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "Messages_ibfk_1")
-  User_Messages_receiver_idToUser User?       @relation("Messages_receiver_idToUser", fields: [receiver_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "Messages_ibfk_2")
-  Properties                      Properties? @relation(fields: [property_id], references: [property_id], onDelete: NoAction, onUpdate: NoAction, map: "Messages_ibfk_3")
-
-  @@index([property_id], map: "property_id")
-  @@index([receiver_id], map: "receiver_id")
-  @@index([sender_id], map: "sender_id")
-}
-
 model Personal_details {
   detail_id         Int     @id @default(autoincrement())
   user_id           Int?    @unique(map: "user_id")
@@ -114,25 +86,23 @@ model Policies {
 }
 
 model Properties {
-  property_id          Int                    @id @default(autoincrement())
-  user_id              Int?
-  location_id          Int?
-  name                 String                 @db.VarChar(100)
-  description          String?                @db.Text
-  base_price           Decimal                @db.Decimal(10, 2)
-  max_guests           Int
-  type                 Properties_type
-  status               Properties_status      @default(pending)
-  AvailabilityCalendar AvailabilityCalendar[]
-  Bookings             Bookings[]
-  Favorites            Favorites[]
-  Messages             Messages[]
-  User                 User?                  @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "Properties_ibfk_1")
-  Locations            Locations?             @relation(fields: [location_id], references: [location_id], onDelete: NoAction, onUpdate: NoAction, map: "Properties_ibfk_2")
-  PropertyImages       PropertyImages[]
-  PropertyReviews      PropertyReviews[]
-  Property_Amenities   Property_Amenities[]
-  Property_Policies    Property_Policies[]
+  property_id        Int                  @id @default(autoincrement())
+  user_id            Int?
+  location_id        Int?
+  name               String               @db.VarChar(100)
+  description        String?              @db.Text
+  base_price         Decimal              @db.Decimal(10, 2)
+  max_guests         Int
+  type               Properties_type
+  status             Properties_status    @default(pending)
+  Bookings           Bookings[]
+  Favorites          Favorites[]
+  User               User?                @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "Properties_ibfk_1")
+  Locations          Locations?           @relation(fields: [location_id], references: [location_id], onDelete: NoAction, onUpdate: NoAction, map: "Properties_ibfk_2")
+  PropertyImages     PropertyImages[]
+  PropertyReviews    PropertyReviews[]
+  Property_Amenities Property_Amenities[]
+  Property_Policies  Property_Policies[]
 
   @@index([location_id], map: "location_id")
   @@index([user_id], map: "user_id")
@@ -190,23 +160,21 @@ model Property_Policies {
 }
 
 model User {
-  user_id                             Int               @id @default(autoincrement())
-  name                                String            @db.VarChar(100)
-  email                               String            @unique(map: "email") @db.VarChar(100)
-  password                            String            @db.VarChar(255)
-  phone                               String?           @db.VarChar(20)
-  birth_day                           DateTime?         @db.Date
-  gender                              User_gender
-  role                                User_role         @default(guest)
-  avatar                              String?           @db.VarChar(255)
-  Bookings                            Bookings[]
-  Cancellations                       Cancellations[]
-  Favorites                           Favorites[]
-  Messages_Messages_sender_idToUser   Messages[]        @relation("Messages_sender_idToUser")
-  Messages_Messages_receiver_idToUser Messages[]        @relation("Messages_receiver_idToUser")
-  Personal_details                    Personal_details?
-  Properties                          Properties[]
-  PropertyReviews                     PropertyReviews[]
+  user_id          Int               @id @default(autoincrement())
+  name             String            @db.VarChar(100)
+  email            String            @unique(map: "email") @db.VarChar(100)
+  password         String            @db.VarChar(255)
+  phone            String?           @db.VarChar(20)
+  birth_day        DateTime?         @db.Date
+  gender           User_gender
+  role             User_role         @default(guest)
+  avatar           String?           @db.VarChar(255)
+  Bookings         Bookings[]
+  Cancellations    Cancellations[]
+  Favorites        Favorites[]
+  Personal_details Personal_details?
+  Properties       Properties[]
+  PropertyReviews  PropertyReviews[]
 }
 
 enum PropertyImages_image_type {
@@ -218,12 +186,6 @@ enum PropertyImages_image_type {
   view
   dining_area
   other
-}
-
-enum AvailabilityCalendar_status {
-  available
-  booked
-  blocked
 }
 
 enum Cancellations_status {

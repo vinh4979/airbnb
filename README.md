@@ -2,6 +2,9 @@
 
 Đây là một dự án API backend cho một ứng dụng tương tự như AirBnb, được xây dựng bằng NestJS.
 
+## Video Demo
+Xem demo của dự án tại: [YouTube](https://youtu.be/h11XwEgWaY4)
+
 ## Công nghệ sử dụng
 
 - NestJS: Framework backend chính
@@ -22,6 +25,7 @@
 ## Các Endpoint chính
 
 ### Authentication
+- POST /auth/signup: Đăng ký người dùng mới
 - POST /auth/login: Đăng nhập người dùng
 
 ### Users
@@ -37,7 +41,9 @@
 - GET /property/search: Tìm kiếm property theo vị trí
 - GET /property/:id: Lấy thông tin chi tiết của một property
 - GET /property/type/:type: Lấy danh sách property theo loại
-...
+- POST /property/create-new-property: Tạo một property mới
+- PUT /property/update-property-status/:id: Cập nhật trạng thái của một property
+- PUT /property/update-location/:id: Cập nhật vị trí của một property
 
 ### Bookings
 - POST /booking: Tạo một đặt phòng mới
@@ -46,15 +52,17 @@
 - GET /booking/user/:userId: Lấy danh sách đặt phòng của một người dùng
 - POST /booking/cancel: Hủy đặt phòng
 
+### Reviews
+- POST /reviews: Tạo một đánh giá mới
+- GET /reviews/property/:propertyId: Lấy tất cả đánh giá cho một property
+- PUT /reviews/rating: Cập nhật đánh giá sao của một review
+- PUT /reviews/comment: Cập nhật nhận xét của một review
+- DELETE /reviews: Xóa một đánh giá
+
 ### Favorites
 - POST /favorites: Thêm một property vào danh sách yêu thích
 - DELETE /favorites: Xóa một property khỏi danh sách yêu thích
 - GET /favorites/:userId: Lấy danh sách property yêu thích của một người dùng
-
-### Reviews
-- POST /reviews: Tạo một đánh giá mới
-- DELETE /reviews: Xóa một đánh giá
-
 
 # Database
 ![Database structure](public/imgs/API-airbnb.png)

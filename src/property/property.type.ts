@@ -18,7 +18,7 @@ export enum PropertyStatus {
 
 export class UpdatePropertyStatusDto {
   @ApiProperty({ enum: PropertyStatus, description: 'Trạng thái mới của property' })
-  @IsEnum(PropertyStatus)
+  // @IsEnum(PropertyStatus)
   status: PropertyStatus;
 }
 

@@ -97,7 +97,7 @@ async updateBookingStatus(bookingId: number, status: Bookings_status): Promise<a
     });
   
     if (!booking) {
-      throw new NotFoundException(`Không tìm thấy booking với ID ${bookingId}`);
+      throw new NotFoundException(`Booking with ID ${bookingId} not found`);
     }
   
     const updatedBooking = await this.prismaService.bookings.update({
@@ -106,7 +106,7 @@ async updateBookingStatus(bookingId: number, status: Bookings_status): Promise<a
     });
   
     return {
-      message: 'Trạng thái đặt phòng đã được cập nhật thành công',
+      message: 'Booking status updated successfully',
       updatedBooking,
     };
   }
@@ -128,11 +128,11 @@ async updateBookingStatus(bookingId: number, status: Bookings_status): Promise<a
     });
   
     if (!booking) {
-      throw new NotFoundException(`Không tìm thấy đặt phòng với ID ${bookingId}`);
+      throw new NotFoundException(`Booking with ID ${bookingId} not found`);
     }
   
     if (booking.user_id !== userId) {
-      throw new ForbiddenException('Bạn không có quyền hủy đặt phòng này');
+      throw new ForbiddenException('You do not have permission to cancel this booking');
     }
   
     const updatedBooking = await this.prismaService.bookings.update({
@@ -151,7 +151,7 @@ async updateBookingStatus(bookingId: number, status: Bookings_status): Promise<a
     });
   
     return {
-      message: 'Đặt phòng đã được hủy thành công',
+      message: 'Booking cancelled successfully',
       updatedBooking,
       cancellation,
     };

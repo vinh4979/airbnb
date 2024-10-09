@@ -12,37 +12,37 @@ export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Tạo đánh giá mới' })
-  @ApiResponse({ status: 201, description: 'Đánh giá đã được tạo thành công.' })
+  @ApiOperation({ summary: 'Create a new review' })
+  @ApiResponse({ status: 201, description: 'Review created successfully.' })
   async createReview(@Body() createReviewDto: CreateReviewDto) {
     return this.reviewService.createReview(createReviewDto);
   }
 
   @Get('property/:propertyId')
-  @ApiOperation({ summary: 'Lấy tất cả đánh giá của một property' })
-  @ApiResponse({ status: 200, description: 'Trả về danh sách đánh giá.' })
+  @ApiOperation({ summary: 'Get all reviews for a property' })
+  @ApiResponse({ status: 200, description: 'Returns the list of reviews.' })
   async getPropertyReviews(@Param('propertyId') propertyId: string) {
     return this.reviewService.getPropertyReviews(+propertyId);
   }
 
   @Put('rating')
-@ApiOperation({ summary: 'Cập nhật đánh giá sao của một review' })
-@ApiResponse({ status: 200, description: 'Đánh giá đã được cập nhật thành công.' })
+@ApiOperation({ summary: 'Update the rating of a review' })
+@ApiResponse({ status: 200, description: 'Rating updated successfully.' })
 async updateReviewRating(@Body() updateReviewRatingDto: UpdateReviewRatingDto) {
   return this.reviewService.updateReviewRating(updateReviewRatingDto);
 }
 
 @Put('comment')
-@ApiOperation({ summary: 'Cập nhật nhận xét của một review' })
-@ApiResponse({ status: 200, description: 'Nhận xét đã được cập nhật thành công.' })
+@ApiOperation({ summary: 'Update the comment of a review' })
+@ApiResponse({ status: 200, description: 'Comment updated successfully.' })
 async updateReviewComment(@Body() updateReviewCommentDto: UpdateReviewCommentDto) {
   return this.reviewService.updateReviewComment(updateReviewCommentDto);
 }
 
 @Delete()
-@ApiOperation({ summary: 'Xóa một đánh giá' })
-@ApiResponse({ status: 200, description: 'Đánh giá đã được xóa thành công.' })
-@ApiResponse({ status: 404, description: 'Không tìm thấy đánh giá hoặc không có quyền xóa.' })
+@ApiOperation({ summary: 'Delete a review' })
+@ApiResponse({ status: 200, description: 'Review deleted successfully.' })
+@ApiResponse({ status: 404, description: 'Review not found or no permission to delete.' })
 async deleteReview(@Body() deleteReviewDto: DeleteReviewDto) {
   return this.reviewService.deleteReview(deleteReviewDto);
 }

@@ -9,7 +9,7 @@ export enum Booking_status {
 }
 
 export class UpdateBookingStatusDto {
-    @ApiProperty({ enum: Booking_status, description: 'Trạng thái mới của đặt phòng' })
+    @ApiProperty({ enum: Booking_status, description: 'New status of the booking' })
     @IsEnum(Booking_status)
     status: Booking_status;
   }
@@ -58,17 +58,17 @@ export type response = {
 }
 
 export class CancelBookingDto {
-    @ApiProperty({ description: 'ID của người dùng' })
+    @ApiProperty({ description: 'User ID' })
     @IsNumber()
     @IsNotEmpty()
     user_id: number;
   
-    @ApiProperty({ description: 'ID của đặt phòng' })
+    @ApiProperty({ description: 'Booking ID' })
     @IsNumber()
     @IsNotEmpty()
     booking_id: number;
   
-    @ApiProperty({ description: 'Lý do hủy đặt phòng' })
+    @ApiProperty({ description: 'Reason for cancellation' })
     @IsString()
     @IsNotEmpty()
     reason: string;

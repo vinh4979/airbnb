@@ -28,11 +28,11 @@ export class BookingController {
   }
 
   @Put(':id/status')
-  @ApiOperation({ summary: 'Cập nhật trạng thái của một đặt phòng' })
-  @ApiParam({ name: 'id', type: 'number', description: 'ID của đặt phòng' })
+  @ApiOperation({ summary: 'Update the status of a booking' })
+  @ApiParam({ name: 'id', type: 'number', description: 'ID of the booking' })
   @ApiBody({ type: UpdateBookingStatusDto })
-  @ApiResponse({ status: 200, description: 'Trạng thái đã được cập nhật thành công.' })
-  @ApiResponse({ status: 404, description: 'Không tìm thấy đặt phòng với ID đã cho.' })
+  @ApiResponse({ status: 200, description: 'Status updated successfully.' })
+  @ApiResponse({ status: 404, description: 'Booking not found with the given ID.' })
   async updateBookingStatus(
   @Param('id', ParseIntPipe) id: number,
   @Body() updateStatusDto: UpdateBookingStatusDto
@@ -50,10 +50,10 @@ export class BookingController {
   }
 
   @Post('cancel')
-@ApiOperation({ summary: 'Hủy đặt phòng' })
+@ApiOperation({ summary: 'Cancel a booking' })
 @ApiBody({ type: CancelBookingDto })
-@ApiResponse({ status: 200, description: 'Đặt phòng đã được hủy thành công.' })
-@ApiResponse({ status: 404, description: 'Không tìm thấy đặt phòng với ID đã cho.' })
+@ApiResponse({ status: 200, description: 'Booking cancelled successfully.' })
+@ApiResponse({ status: 404, description: 'Booking not found with the given ID.' })
 async cancelBooking(@Body() cancelBookingDto: CancelBookingDto) {
   return this.bookingService.cancelBooking(
     cancelBookingDto.booking_id,
